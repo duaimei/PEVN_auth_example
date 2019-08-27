@@ -13,20 +13,20 @@ const port = 3000
 // const knex = Knex(knexConfig.development);
 // Model.knex(knex);
 
+
 app.use(bodyParser.json())
-app.use(cors({
-  origin: 'http://localhost:8080'
-}));
+const allowedOrigins = ['http://localhost:8080', 'https://account.google.com']
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
+cors(corsOptions)
 
-// app.get('/auth/google',
-//   passport.authenticate('google', { scope: ['profile'] }));
-
-// app.get('/auth/google/callback', 
-//   passport.authenticate('google', { failureRedirect: '/login' }),
-//   function(req, res) {
-//     // Successful authentication, redirect home.
-//     res.redirect('/');
-//   });
 
 app.use('/', routes);
 
@@ -35,7 +35,10 @@ app.use(
     extended: true,
   })
 )
-
+// app.all('/*', function(req, res, next) {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   next();
+// });
 app.listen(port, () => {
   console.log(`App running on port ${port}.`)
 })
