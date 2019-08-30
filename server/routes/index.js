@@ -1,47 +1,48 @@
 const routes = require('express').Router();
 const passport = require('passport')
+const {OAuth2Client} = require('google-auth-library');
 const secret = require('../config/secrets.json')
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const cors = require('cors')
 
-const allowedOrigins = ['http://localhost:8080', 'https://account.google.com']
-var corsOptions = {
-  origin: function (origin, callback) {
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  }
-}
-cors(corsOptions)
+routes.get('/yess', (req, res) => {
+  console.log('started to do /yess')
+  res.status(200).json({message: 'google auth link'})
+})
 
-passport.use(new GoogleStrategy({
-  clientID: secret.GOOGLE_CLIENT_ID,
-  clientSecret: secret.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:3000/auth/google/callback"
-},
-function(accessToken, refreshToken, profile, cb) {
-  User.findOrCreate({ googleId: profile.id }, function (err, user) {
-    return cb(err, user);
-  });
-}
-));
-
-routes.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile'] }));
-
-  routes.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/login' }),
-  function(req, res) {
-    // Successful authentication, redirect home.
-    console.log('it is now time to redirect')
-    res.redirect('/');
-  });
+// routes.get('/auth/google', passport.authenticate('google', { 
+//   scope: ['profile']
+// }))
 
 routes.get('/auth/google', (req, res) => {
-  console.log('started to do /auth/google')
-  res.status(200).json({message: 'google auth link'})
+  console.log('auth google res')
+  console.log(res)
+  res.send(req)
+})
+
+routes.post('/auth/google', (req, res) => {
+  console.log('auth google post req')
+  console.log(req.body.code)
+  const client = new OAuth2Client(secret.GOOGLE_CLIENT_ID);
+  async function verify() {
+    const ticket = await client.verifyIdToken({
+        idToken: req.body.code,
+        audience: secret.GOOGLE_CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+  
+    });
+    const payload = ticket.getPayload();
+    console.log('PAYLOAD!!!!!!!!!')
+    console.log(payload)
+    const userid = payload['sub'];
+    // If request specified a G Suite domain:
+    //const domain = payload['hd'];
+  }
+  verify().then(() => {
+    res.send(req.body.code)
+  }).catch(console.error);
+    
+  })
+
+routes.get('/auth/google/callback', passport.authenticate('google'), (req, res) => {
+  res.send(req.user);
 })
 
 routes.get('/', (req, res) => {
