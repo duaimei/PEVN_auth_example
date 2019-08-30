@@ -5,13 +5,10 @@ const apiClient = axios.create({
 });
 
 export default {
-  // getRoot() {
-  //   return apiClient.get();
-  // },
-  // example() {
-  //   return apiClient.get('/games/group_things');
-  // },
   authenticate() {
-    return apiClient.post('/auth/google', '');
+    return apiClient.get('/auth/google');
+  },
+  yess() {
+    return apiClient.get('/yess');
   },
 };

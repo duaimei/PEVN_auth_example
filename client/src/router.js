@@ -20,6 +20,9 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
     },
     {
+      path: '/auth/google',
+    },
+    {
       path: '/secure',
       name: 'secure',
       component: Secured,

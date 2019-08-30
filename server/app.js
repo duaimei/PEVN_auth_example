@@ -6,9 +6,6 @@ const bodyParser = require('body-parser')
 const Knex = require('knex');
 const knexConfig = require('./knexfile');
 const { Model } = require('objection');
-const passport = require('passport');
-const passportSetup = require('./config/passport-setup');
-
 
 const knex = Knex(knexConfig.development);
 Model.knex(knex);
@@ -28,15 +25,6 @@ app.use(
     extended: true,
   })
 )
-
-// app.use(cookieSession({
-//   maxAge: 24 * 60 * 60 * 1000,
-//   keys: [keys.session.cookieKey]
-// }));
-
-// initialize passport
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use('/', routes);
 
